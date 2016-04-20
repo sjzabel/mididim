@@ -1,50 +1,45 @@
 '''
 Chord definitions
 '''
-from midi import NoteOnEvent
-from midi import NoteOffEvent
+from mido import Message
 
 class AbstractChord(object):
     def __init__(self, root, key=None):
         self._root = root
         self._key = key
 
-    def nOn(self, tick=0, velocity=100, pattern=None):
+    def note_on(self, time=0, velocity=64, pattern=None):
         '''
         pattern is an opening for things like strums, fingerpicking and arpeggios
         pattern must yeild
         '''
         if pattern is not None:
-            return pattern(self, tick=tick, velocity=velocity)
+            return pattern(self, time=time, velocity=velocity)
 
         rslt = []
         for offset in self.asc:
             rslt.append(
-                NoteOnEvent(tick=tick, velocity=velocity, pitch=self._root + offset)
+                    Message('note_on', time=time, velocity=velocity, note=self._root + offset)
             )
-            tick = 0
+            time = 0
         return rslt
 
-    NoteOnEvent = nOn
-
-    def nOff(self, tick=0, pattern=None):
+    def note_off(self, time=0, pattern=None):
         '''
         pattern is an opening for things like strums, fingerpicking and arpeggios
         pattern must yeild
         '''
         if pattern is not None:
-            return pattern(self, tick=tick, velocity=velocity)
+            return pattern(self, time=time, velocity=velocity)
 
         rslt = []
         for offset in self.asc:
             rslt.append(
-                NoteOffEvent(tick=tick, pitch=self._root + offset)
+                Message('note_off', velocity=0, time=time, note=self._root + offset)
             )
-            tick = 0
+            time = 0
 
         return rslt
-
-    NoteOnEvent = nOn
 
 class Major(AbstractChord):
     '''
