@@ -1,7 +1,7 @@
 '''
 Rhythm helpers
 '''
-import midi
+import mido
 
 
 BASE_RESOLUTION = (2 ** 6) * 3
@@ -60,10 +60,11 @@ class AbstractRest(AbstractTimeUnit):
 
 
 class AbstractNote(AbstractTimeUnit, list):
-    def __init__(self, pitch=None, velocity=100):
+    def __init__(self, pitch=None, velocity=100, channel=0):
         super(AbstractNote, self).__init__()
         self.pitch = pitch
         self.velocity = velocity
+        self.channel = channel
 
 
     def __iter__(self):
@@ -80,13 +81,15 @@ class AbstractNote(AbstractTimeUnit, list):
             # turn notes on
             for offset in self.pitch.asc:
                 self.append(
-                    midi.NoteOnEvent(tick=0, velocity=self.velocity, pitch=self.pitch._root + offset)
+                    #midi.NoteOnEvent(tick=0, velocity=self.velocity, pitch=self.pitch._root + offset)
+                    mido.Message('note_on', channel=self.channel, time=0, velocity=self.velocity, note=self.pitch._root + offset)
                 )
 
             # turn notes off
             for offset in self.pitch.asc:
                 self.append(
-                    midi.NoteOffEvent(tick=len_of_note, pitch=self.pitch._root + offset)
+                    #midi.NoteOffEvent(tick=len_of_note, pitch=self.pitch._root + offset)
+                    mido.Message('note_off', channel=self.channel, time=len_of_note, note=self.pitch._root + offset)
                 )
                 # we want to turn off all of the remaining notes right away
                 len_of_note = 0
@@ -94,12 +97,14 @@ class AbstractNote(AbstractTimeUnit, list):
         else:
             # turn notes on
             self.append(
-                midi.NoteOnEvent(tick=0, velocity=self.velocity, pitch=self.pitch)
+                #midi.NoteOnEvent(tick=0, velocity=self.velocity, pitch=self.pitch)
+                mido.Message('note_on', channel=self.channel, time=0, velocity=self.velocity, note=self.pitch)
             )
 
             # turn notes off
             self.append(
-                midi.NoteOffEvent(tick=len_of_note, pitch=self.pitch)
+                #midi.NoteOffEvent(tick=len_of_note, pitch=self.pitch),
+                mido.Message('note_off', channel=self.channel, time=len_of_note, note=self.pitch)
             )
 
         return super(AbstractNote, self).__iter__()

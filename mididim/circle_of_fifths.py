@@ -9,10 +9,11 @@ import collections
 
 
 #  The currently selected tonic in the tonic table.
-default_tonic = "C"
+default_tonic = "A"
 
 #  The currently selected mode in the mode table.
-default_mode = "ionian"
+#default_mode = "ionian"
+default_mode = "minor"
 
 #  This is for computer consumption... so we will never s'see' Rands css
 position_cord_type = [
